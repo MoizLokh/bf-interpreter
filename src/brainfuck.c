@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int mem[100];
+#define MEM_SIZE 100
+
+int mem[MEM_SIZE];
 
 void bf_interpreter(char *buf, size_t size);
 
@@ -29,6 +31,7 @@ void bf_interpreter(char *buf, size_t size) {
 
     case '.':
       printf("%c", mem[memIndex]);
+      //puts((char*) mem[memIndex]);
       break;
     }
     index++;
@@ -40,15 +43,16 @@ int main(int argc, char *argv[]) {
   FILE *fptr;
   size_t fsize;
   char *buffer;
+  long offset = 0;
   
   if (argc < 2) {
-    printf("Missing file argument \n");
+    perror("Missing file argument \n");
     exit(1); 
   }
   
   fptr = fopen(argv[1], "r");
   if (fptr == NULL) {
-    printf("Failed to open file \n");
+    perror("Failed to open file \n");
     exit(1);
   }
 
@@ -57,20 +61,17 @@ int main(int argc, char *argv[]) {
   rewind(fptr);
 
   // Initialize a buffer
-  buffer = malloc(fsize);
+  buffer = malloc((fsize + 1) * sizeof(char));
   if (!buffer) {
-    printf("Failed to allocate memory");
+    perror("Failed to allocate memory");
     free(buffer);
     fclose(fptr);
     exit(1);
   }
 
-  // Add file contents into buffer
-  if (fread(buffer, fsize, 1, fptr) == 0) {
-    printf("Failed to read file");
-    free(buffer);
-    fclose(fptr);
-    exit(1);
+  while (!feof(fptr) && offset < fsize) {
+    //increment the file offset depending on how much we read
+    offset += fread(buffer + offset, sizeof(char), fsize - offset, fptr);
   }
 
   fclose(fptr);
