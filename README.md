@@ -1,2 +1,2 @@
 # bf-interpreter
-An interpreter for the esoteric programming language brainfuck
+An interpreter for an esoteric programming language brainfuck
