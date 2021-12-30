@@ -1,10 +1,38 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+int mem[100];
+
 void bf_interpreter(char *buf, size_t size);
 
 void bf_interpreter(char *buf, size_t size) {
+  int index = 0;
+  int memIndex = 0;
   
+  while (index < size) {
+    switch(buf[index]) {
+    case '+':
+      mem[memIndex]++;
+      break;
+
+    case '-':
+      mem[memIndex]--;
+      break;
+
+    case '>':
+      if (memIndex < 99) memIndex++;
+      break;
+
+    case '<':
+      if (memIndex > 0) memIndex--;
+      break;
+
+    case '.':
+      printf("%c", mem[memIndex]);
+      break;
+    }
+    index++;
+  }
   return;
 }
 
@@ -46,7 +74,7 @@ int main(int argc, char *argv[]) {
   }
 
   fclose(fptr);
-  //bf_interpreter(buffer);
+  bf_interpreter(buffer, fsize);
   free(buffer);
   
   return 0;
