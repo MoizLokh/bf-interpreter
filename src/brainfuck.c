@@ -2,41 +2,98 @@
 #include <stdlib.h>
 
 #define MEM_SIZE 100
+#define MAX_LOOPS 1000
 
-int mem[MEM_SIZE];
+char* stack[MAX_LOOPS];
+char** stptr;
 
-void bf_interpreter(char *buf, size_t size);
+char mem[MEM_SIZE];
 
-void bf_interpreter(char *buf, size_t size) {
+// Function-like Macros for stack
+#define push(stptr, n) (*(stptr += sizeof(char*)) = (n))
+#define pop(stptr) (*(stptr -= sizeof(char*)))
+#define top(stptr) (*stptr)
+
+void bf_interpreter(char *instr);
+void endLoop(char *instr);
+
+
+void bf_interpreter(char *instr) {
   int index = 0;
-  int memIndex = 0;
+  int open_loops = 0;
   
-  while (index < size) {
-    switch(buf[index]) {
+  while (*instr != '\0') {
+    switch(*instr) {
     case '+':
-      mem[memIndex]++;
+      mem[index]++;
       break;
 
     case '-':
-      mem[memIndex]--;
+      mem[index]--;
       break;
 
     case '>':
-      if (memIndex < 99) memIndex++;
+      if (index < 99) index++;
       break;
 
     case '<':
-      if (memIndex > 0) memIndex--;
+      if (index > 0) index--;
       break;
 
     case '.':
-      printf("%c", mem[memIndex]);
-      //puts((char*) mem[memIndex]);
+      putchar(mem[index]);
+      //puts((char*) mem[index]);
       break;
+
+    case ';':
+      scanf("%c", &mem[index]);
+      break;
+
+    case '[':
+      // If data is 0 then we skip the loop 
+      if (mem[index] == 0) endLoop(instr);
+      else {
+	open_loops++;
+	// Push instr ptr that we would return to at the end of an iteration
+	push(stptr, instr);
+      }      
+      break;
+
+    case ']':
+      // Check if no loops are open, otherwise error
+      if (open_loops == 0) {
+	perror("\n Closing loop that was never opened");
+	return;
+      }
+
+      /* Loops back if memory locationc contains zero
+	 Instr pointer modified to one we saved when opening loop */
+      if (mem[index] == 0) open_loops--, pop(stptr);
+      else instr = top(stptr);	
+      break;      
     }
-    index++;
+    
+    instr++;
   }
   return;
+}
+
+void endLoop(char* instr) {
+  int open_loops = 0;
+  
+  while (*instr != '\0') {
+    switch(*instr) {
+    case '[':
+      open_loops++;
+      break;
+
+    case ']':
+      if (open_loops == 0) return;
+      else open_loops--;
+      break;
+    }
+    instr++;
+  }
 }
 
 int main(int argc, char *argv[]) {
@@ -44,6 +101,9 @@ int main(int argc, char *argv[]) {
   size_t fsize;
   char *buffer;
   long offset = 0;
+
+  // Initilize a stack pointer
+  stptr = stack;
   
   if (argc < 2) {
     perror("Missing file argument \n");
@@ -73,9 +133,10 @@ int main(int argc, char *argv[]) {
     //increment the file offset depending on how much we read
     offset += fread(buffer + offset, sizeof(char), fsize - offset, fptr);
   }
+  buffer[offset] = '\0';
 
   fclose(fptr);
-  bf_interpreter(buffer, fsize);
+  bf_interpreter(buffer);
   free(buffer);
   
   return 0;
