@@ -1,21 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-
-#define MEM_SIZE 100
-#define MAX_LOOPS 1000
-
-char* stack[MAX_LOOPS];
-char** stptr;
-
-char mem[MEM_SIZE];
-
-// Function-like Macros for stack
-#define push(stptr, n) (*(stptr += sizeof(char*)) = (n))
-#define pop(stptr) (*(stptr -= sizeof(char*)))
-#define top(stptr) (*stptr)
-
-void bf_interpreter(char *instr);
-void endLoop(char *instr);
+#include <brainfuck.h>
 
 
 void bf_interpreter(char *instr) {
@@ -94,51 +79,5 @@ void endLoop(char* instr) {
     }
     instr++;
   }
-}
-
-int main(int argc, char *argv[]) {
-  FILE *fptr;
-  size_t fsize;
-  char *buffer;
-  long offset = 0;
-
-  // Initilize a stack pointer
-  stptr = stack;
-  
-  if (argc < 2) {
-    perror("Missing file argument \n");
-    exit(1); 
-  }
-  
-  fptr = fopen(argv[1], "r");
-  if (fptr == NULL) {
-    perror("Failed to open file \n");
-    exit(1);
-  }
-
-  fseek(fptr, 0, SEEK_END);
-  fsize = ftell(fptr);
-  rewind(fptr);
-
-  // Initialize a buffer
-  buffer = malloc((fsize + 1) * sizeof(char));
-  if (!buffer) {
-    perror("Failed to allocate memory");
-    free(buffer);
-    fclose(fptr);
-    exit(1);
-  }
-
-  while (!feof(fptr) && offset < fsize) {
-    //increment the file offset depending on how much we read
-    offset += fread(buffer + offset, sizeof(char), fsize - offset, fptr);
-  }
-  buffer[offset] = '\0';
-
-  fclose(fptr);
-  bf_interpreter(buffer);
-  free(buffer);
-  
-  return 0;
 }
 
