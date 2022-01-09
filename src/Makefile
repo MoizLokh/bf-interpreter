@@ -7,8 +7,14 @@ SRCS = $(wildcard *.c)
 DEPS = $(wildcard $(IDIR)/*.h)
 OBJS = $(patsubst %.c, $(ODIR)/%.o, $(SRCS))
 
+TDIR = ../tests
+TESTS = $(wildcard $(TDIR)/*.c)
+TESTBINS = $(patsubst $(TDIR)/%.c, $(TDIR)/bin/%, $(TESTS))
+
 BDIR = bin
 BIN = $(BDIR)/main
+
+OBJSNOMAIN = $(filter-out obj/main.o, $(OBJS))
 
 all: $(BIN)
 
@@ -17,6 +23,24 @@ $(BIN): $(OBJS)
 
 $(ODIR)/%.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
+
+$(TDIR)/bin/%: $(TESTS)
+	$(CC) $< $(OBJSNOMAIN) -o $@ $(CFLAGS) 
+
+$(TDIR)/bin:
+	mkdir $@
+
+$(ODIR):
+	mkdir $@
+
+$(BDIR):
+	mkdir $@
+
+$(IDIR):
+	mkdir $@
+
+test: $(TDIR)/bin $(TESTBINS)
+	for test in $(TESTBINS) ; do ./$$test ; done
 
 .PHONY: clean
 

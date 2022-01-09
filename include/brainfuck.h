@@ -14,7 +14,7 @@ char mem[MEM_SIZE];
 #define pop(stptr) (*(stptr -= sizeof(char*)))
 #define top(stptr) (*stptr)
 
-void bf_interpreter(char *instr);
+int bf_interpreter(char *instr, FILE* outfile);
 void endLoop(char *instr);
 
 #endif // BF_H

@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
     return -1;
   }
   
-  bf_interpreter(buffer);
+  bf_interpreter(buffer, stdout);
   free(buffer);
   
   return 0;

@@ -3,7 +3,7 @@
 #include <brainfuck.h>
 
 
-void bf_interpreter(char *instr) {
+int bf_interpreter(char *instr, FILE* outfile) {
   int index = 0;
   int open_loops = 0;
   
@@ -47,8 +47,8 @@ void bf_interpreter(char *instr) {
     case ']':
       // Check if no loops are open, otherwise error
       if (open_loops == 0) {
-	perror("\n Closing loop that was never opened");
-	return;
+	printf("\n Closing loop that was never opened");
+	return -1;
       }
 
       /* Loops back if memory locationc contains zero
@@ -60,7 +60,7 @@ void bf_interpreter(char *instr) {
     
     instr++;
   }
-  return;
+  return 0;
 }
 
 void endLoop(char* instr) {
