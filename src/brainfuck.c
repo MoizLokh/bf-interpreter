@@ -47,7 +47,7 @@ int bf_interpreter(char *instr, FILE* outfile) {
     case ']':
       // Check if no loops are open, otherwise error
       if (open_loops == 0) {
-	printf("\n Closing loop that was never opened");
+	printf("\nClosing loop that was never opened");
 	return -1;
       }
 
@@ -55,7 +55,13 @@ int bf_interpreter(char *instr, FILE* outfile) {
 	 Instr pointer modified to one we saved when opening loop */
       if (mem[index] == 0) open_loops--, pop(stptr);
       else instr = top(stptr);	
-      break;      
+      break;
+
+
+    default:
+      printf("\nInvalid instruction");
+      return -1;
+      break;
     }
     
     instr++;
